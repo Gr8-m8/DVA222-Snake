@@ -5,6 +5,8 @@ namespace Snake
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
+
+        static Game game = new Game();
         [STAThread]
         static void Main()
         {
