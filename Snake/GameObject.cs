@@ -61,7 +61,7 @@ namespace Snake
 
         public static Consumable GenerateConsumable(Random r, Tile setTile)
         {
-            switch (r.Next(2))
+            switch (r.Next(3))
             {
                 default:
                 case 0:

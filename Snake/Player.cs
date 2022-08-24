@@ -69,13 +69,13 @@ namespace Snake
             GameObject other;
             if (moveTile.Occupied(out other))
             {
-                Debug.WriteLine($"Snake {color} collision: {other.GetType().BaseType}");
                 if (other.GetType() == typeof(Snake)) { Snake otherSnake = (Snake)other; otherSnake.getPlayer.AppendPoints(5); this.Die(); return; }
-                if (other.GetType().BaseType == typeof(Consumable)) { Consumable otherConsumable = (Consumable)other; AppendPoints(otherConsumable.ValuePoints); AppendGrowth(otherConsumable.ValuePoints); game.SpawnConsumable(); }
+                if (other.GetType().BaseType == typeof(Consumable)) { Consumable otherConsumable = (Consumable)other; AppendPoints(otherConsumable.ValuePoints); AppendGrowth(otherConsumable.ValueGrowth); game.SpawnConsumable(); }
             }
 
             snake.Add(new Snake(this, moveTile));
             if (growth > 0) { growth--; } else { snake.FirstOrDefault().Clear(); snake.Remove(snake.FirstOrDefault()); }
+            if (growth < 0) { growth++; if (snake.Count > 1) { snake.FirstOrDefault().Clear(); snake.Remove(snake.FirstOrDefault()); } }
         }
 
         public void Update()

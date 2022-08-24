@@ -152,8 +152,8 @@ namespace Snake
             switch (gamestate)
             {
                 case GameState.Pregame:
-                    args.Graphics.DrawString("Snake Game", font, new SolidBrush(Color.Black), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4));
-                    args.Graphics.DrawString("<Press [Enter] to play>", font, new SolidBrush(Color.Black), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4 + font.Size * 3 / 2));
+                    args.Graphics.DrawString("Snake vs Snake", font, new SolidBrush(Color.Orange), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4));
+                    args.Graphics.DrawString("<Press [Enter] to play>", font, new SolidBrush(Color.LawnGreen), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4 + font.Size * 3 / 2));
                     break;
 
                 case GameState.Ingame:
@@ -162,8 +162,15 @@ namespace Snake
                     break;
 
                 case GameState.Postgame:
-                    args.Graphics.DrawString("Game Over", font, new SolidBrush(Color.Black), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4));
-                    args.Graphics.DrawString("<Press [Enter] to play again>", font, new SolidBrush(Color.Black), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4 + font.Size*3/2));
+                    args.Graphics.DrawString("Game Over", font, new SolidBrush(Color.Red), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4));
+                    args.Graphics.DrawString("<Press [Enter] to play again>", font, new SolidBrush(Color.LawnGreen), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4 + font.Size*3/2));
+
+                    string winnertext = "Draw!";
+                    if (players[0].Points != players[1].Points)
+                        if (players[0].Points > players[1].Points) winnertext = $"Player {0+1} Winns!"; else winnertext = $"Player {1 + 1} Winns!";
+                    
+                    args.Graphics.DrawString(winnertext, font, new SolidBrush(Color.Orange), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 2 + (font.Size * -1.5f)));
+
                     for (int i = 0; i < players.Length; i++)
                         args.Graphics.DrawString($"Player {i+1} score: {players[i].Points}", font, new SolidBrush(players[i].getColor), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 2 + font.Size*i +(font.Size/2)*i));
                     break;
