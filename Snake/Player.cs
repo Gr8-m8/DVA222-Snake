@@ -3,70 +3,102 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Snake
 {
     internal class Player
     {
-        Snake sHead;
-        Snake sTail;
-        int[] sDirection = new int[2] {0, 0};
+        public Player(Game setgame)
+        {
+            game = setgame;
+            snake = new List<Snake>();
+        }
+        Game game;
+
+        
+        List<Snake> snake;
+
+        Vector position;
+        Vector direction;// = new Vector();
+        public Vector getPosition => position;
+        public void setPosition(Vector setPosition) { position = setPosition; }
+
+        public Vector getDirection => direction;
+        public void setDirection(Vector setDirection) { direction = setDirection; }
 
         int points = 0;
-        int growthqueue = 0;
+        int growth = 0;
+        public int Points => points;
 
-        Color color = Color.Green;
-        public Color getcolor => color;
-        public Player(int[] startPosition)
+        Color color = Color.Black;
+        public Color getColor => color;
+
+        bool dead;
+        public bool isDead => dead;
+        public void Die(bool setdead = true)
         {
-            sHead = sTail = new Snake(startPosition, this, null);
+            dead = setdead;
         }
 
-        public void AppendPoints(int addpoints)
+        public void Award(Consumable food)
+        {
+            AppendPoints(food.ValuePoints);
+            AppendGrowth(food.ValueGrowth);
+
+        }
+
+        void AppendPoints(int addpoints)
         {
             points += addpoints;
         }
 
-        public void Grow(int addqueue)
+        void AppendGrowth(int addgrowth)
         {
-            growthqueue += addqueue;
+            growth += addgrowth;
         }
 
-        void Move()
+        public void SnakeStartValues(Vector setPosition, Vector setDirection, Color setColor)
         {
-            int[] movePosition = new int[] { sHead.getPosition[0] + sDirection[0], sHead.getPosition[0] + sDirection[0] };
-            if (growthqueue > 0) {
-                growthqueue--;
-                Snake newPart = new Snake(movePosition, this, sHead);
-                sHead = newPart;
-            } 
-            else if (growthqueue < 0 && sHead != sTail){
-                growthqueue++;
-                sHead.SetNextPart(sTail);
-                sHead = sTail;
-                sHead.Move(movePosition);
-                sTail = sHead.getNextPart;
-                sHead.SetNextPart(null);
+            position = setPosition;
+            direction = setDirection;
+            color = setColor;
 
-                sTail = sTail = sTail.getNextPart;
+            snake.Add(new Snake(this));
+            game.getBoard.getTile(position).Occupie(snake.First());
+        }
+
+        void Move(Board board)
+        {
+            setPosition(new Vector(position.X + direction.X, position.Y + direction.Y));
+            //Debug.WriteLine($"snake ({color}) p=<{position}>");
+            Tile moveTile = board.getTile(position);
+            if (moveTile == null) { this.Die(); return; }
+            GameObject other;
+            if (moveTile.Occupied(out other))
+            {
+                Debug.WriteLine($"Snake {color} collision: {other.GetType().BaseType}");
+                if (other.GetType() == typeof(Snake)) { Debug.WriteLine($"Snake {color} isdead"); this.Die(); return; }
+                if (other.GetType().BaseType == typeof(Consumable)) { Debug.WriteLine($"Snake {color} consumed"); Award((Consumable)other); }
             }
-            else {
-                sHead.SetNextPart(sTail);
-                sHead = sTail;
-                sHead.Move(movePosition);
-                sTail = sHead.getNextPart;
-                sHead.SetNextPart(null);
-            }
+
+            snake.Add(new Snake(this));
+            moveTile.Occupie(snake.LastOrDefault());
+            if (growth > 0) growth--; else snake.Remove(snake.FirstOrDefault());
         }
 
         public void Update()
         {
-
+            if (!dead) Move(game.getBoard);
         }
 
-        public void Draw()
+        
+        public void Draw(Graphics graphics, Font font, Vector position, int playerIndex)
         {
+            //game.BoardTileScale/2+game.BoardTileScale*8*(Index-1)
+            //game.BoardTileScale/2
 
+            graphics.DrawString($"Player {playerIndex}: {this.points}", font, new SolidBrush(color), position.X, position.Y);
         }
     }
 }

@@ -3,47 +3,171 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Snake
 {
-    internal class Game
+    class GameGrapics : Form
     {
-        int TickTimer = 0;
-        int Tick = 60;
+        Game game;
+        public GameGrapics(Game setgame) : base()
+        {
+            game = setgame;
 
-        int[] board = { 30, 30 };
+            Text = "Snake";
+            DoubleBuffered = true;
+            Width = 800;
+            Height = 600;
 
-        List<GameObject> GameObjects = new List<GameObject>();
+            KeyDown += GameGrapics_KeyDown;
+        }
+
+        private void GameGrapics_KeyDown(object? sender, KeyEventArgs e)
+        {
+            //Player 0
+            if (e.KeyCode == Keys.D) { game.GetPlayers[0].setDirection(new Vector(1, 0)); }
+            if (e.KeyCode == Keys.A) { game.GetPlayers[0].setDirection(new Vector(-1, 0)); }
+            if (e.KeyCode == Keys.S) { game.GetPlayers[0].setDirection(new Vector(0, 1)); }
+            if (e.KeyCode == Keys.W) { game.GetPlayers[0].setDirection(new Vector(0, -1)); }
+
+            //Player 1
+            if (e.KeyCode == Keys.L) { game.GetPlayers[1].setDirection(new Vector(1, 0)); }
+            if (e.KeyCode == Keys.J) { game.GetPlayers[1].setDirection(new Vector(-1, 0)); }
+            if (e.KeyCode == Keys.K) { game.GetPlayers[1].setDirection(new Vector(0, 1)); }
+            if (e.KeyCode == Keys.I) { game.GetPlayers[1].setDirection(new Vector(0, -1)); }
+
+            //Utility Keys
+            if (e.KeyCode == Keys.Escape) { System.Environment.Exit(0); }
+            if (e.KeyCode == Keys.Enter) { game.StartGame(); }
+        }
+    }
+
+    class Game
+    {
         public Game()
         {
-
+            Grapics = new GameGrapics(this);
         }
 
-        void Update()
+        enum GameState
         {
+            Pregame = -1,
+            Ingame = 0,
+            Postgame = 1,
+        }
+        GameState gamestate = GameState.Pregame;
+        public void StartGame()
+        {
+            if (gamestate == GameState.Ingame) return;
+            gamestate = GameState.Ingame;
+            board = new Board(new Vector(31, 31));
 
-            //TICKED UPDATE
-            if (++TickTimer%Tick != 0) return;
-
-            foreach(GameObject go in GameObjects)
+            players = new Player[2];// { new Player(this), new Player(this) };
+            for (int si = 0; si < players.Length; si++)
             {
-                go.Update();
-                foreach (GameObject other in GameObjects)
+                players[si] = new Player(this);
+                switch (si)
                 {
-                    if (other != go)
-                    {
-                        go.Collission(other);
-                    }
+                    default:
+                    case -1:
+                        players[si].SnakeStartValues(new Vector(), new Vector(), Color.Black);
+                        break;
+
+                    case 0:
+                        players[si].SnakeStartValues(new Vector(0 + 1, board.getSizeY / 2), new Vector(1, 0), Color.Green);
+                        break;
+
+                    case 1:
+                        players[si].SnakeStartValues(new Vector((board.getSizeX-1)-1, board.getSizeY / 2), new Vector(-1, 0), Color.Red);
+                        break;
                 }
+
+            }
+
+            for (int i = 0; i < 2; i++)
+            {
+                SpawnConsumable();
             }
         }
 
-        void Draw(PaintEventArgs args)
+        void SpawnConsumable()
         {
-            foreach(GameObject go in GameObjects)
+            getBoard.getRandomEmptyTile(r).Occupie(Consumable.GenerateConsumable(r));
+        }
+
+        Random r = new Random();
+
+        GameGrapics Grapics;// = new GameGrapics();
+        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+        int TickRate = 60;
+
+        Board board;
+        public Board getBoard => board;
+        
+        Player[] players;
+        public Player[] GetPlayers => players;
+
+        
+
+        public void Run()
+        {
+            //Debug.WriteLine("RUN");
+            Grapics.Paint += Draw;
+            timer.Tick += Update;
+            timer.Interval = 240;
+            timer.Start();
+
+            Application.Run(Grapics);
+        }
+
+
+        void Update(Object obj, EventArgs args)
+        {
+            switch (gamestate)
             {
-                go.Draw(args.Graphics);
+                case GameState.Pregame:
+                    break;
+
+                case GameState.Ingame:
+                    if (players.Length > 0) foreach (Player player in players) { player.Update(); }
+                    
+                    bool gameover = true;
+                    foreach (Player p in players) { if (!p.isDead) gameover = false; }
+                    if (gameover) gamestate = GameState.Postgame;
+                    break;
+
+                case GameState.Postgame:
+                    break;
             }
+            
+
+            Grapics.Refresh();
+        }
+
+        Font font = new Font("Consolas", 12);
+        void Draw(Object obj,PaintEventArgs args)
+        {
+            switch (gamestate)
+            {
+                case GameState.Pregame:
+                    args.Graphics.DrawString("Snake Game", font, new SolidBrush(Color.Black), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4));
+                    args.Graphics.DrawString("<Press [Enter] to play>", font, new SolidBrush(Color.Black), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4 + font.Size * 3 / 2));
+                    break;
+
+                case GameState.Ingame:
+                    for (int i = 0; i < players.Length; i++) { players[i].Draw(args.Graphics, font, new Vector((int)font.Size + Math.Min(this.Grapics.Width, this.Grapics.Height), (int)((font.Size) / 2 * (i + 1) + (font.Size * i))), i + 1); }
+                    getBoard.Draw(args.Graphics, font, new Vector(0, (int)font.Size * (players.Length + 1)), Math.Min(this.Grapics.Width, this.Grapics.Height));
+                    break;
+
+                case GameState.Postgame:
+                    args.Graphics.DrawString("Game Over", font, new SolidBrush(Color.Black), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4));
+                    args.Graphics.DrawString("<Press [Enter] to play again>", font, new SolidBrush(Color.Black), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 4 + font.Size*3/2));
+                    for (int i = 0; i < players.Length; i++)
+                        args.Graphics.DrawString($"Player {i+1} score: {players[i].Points}", font, new SolidBrush(players[i].getColor), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 2 + font.Size*i +(font.Size/2)*i));
+                    break;
+            }
+            
 
         }
     }

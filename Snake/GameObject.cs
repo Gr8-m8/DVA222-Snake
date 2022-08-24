@@ -6,104 +6,104 @@ using System.Threading.Tasks;
 
 namespace Snake
 {
-    internal class GameObject
+    class GameObject
     {
-        int[] Position = new int[2] {0, 0};
-        public int[] getPosition => Position;
+        protected Color color = Color.Black;
+        public Color getColor => color;
 
-        protected Pen pen = new Pen(Color.Black);
-
-        public GameObject(int[] setPosition)
-        {
-            Position = setPosition;
-            pen.Color = Color.Black;
-        }
-
-        public virtual void Update()
+        public GameObject()
         {
 
         }
 
-        public void Move(int[] newPosition)
+        public void Draw(Graphics graphics, Font font, Vector position, float gsize, int margin)
         {
-            Position[0] = newPosition[0];
-            Position[1] = newPosition[1];
+            graphics.FillRectangle(new SolidBrush(color), position.X * gsize +margin, position.Y * gsize +margin, gsize-2*margin, gsize-2*margin);
         }
 
-        public void Collission(GameObject other)
+        public override string ToString()
         {
-            if (other.getPosition[0] == this.getPosition[0] &&
-                other.getPosition[1] == this.getPosition[1])
-            {
-                CollisionExe(other);
-            }
-        }
-
-        protected virtual void CollisionExe(GameObject other)
-        {
-
-        }
-
-        public virtual void Draw(Graphics graphics)
-        {
-            int width = 10;
-            graphics.DrawRectangle(pen, Position[0], Position[1], width, width);
-        }
-    }
-
-    class Consumable : GameObject
-    {
-        Random r;
-        int[,] Values = { {-1, 1}, { 1, 1 }, { 2, 5 } };
-        int ValuesCurrent = 1;
-        
-        public Consumable(int[] setPosition) : base(setPosition)
-        {
-            GenerateValues();
-
-            pen.Color = Color.Yellow;
-        }
-
-        void GenerateValues()
-        {
-            ValuesCurrent = r.Next(Values.Length);
-        }
-
-        protected override void CollisionExe(GameObject other)
-        {
-            if (other.GetType() == typeof(Snake))
-            {
-                Snake otherSnake = (Snake)other;
-                otherSnake.getPlayer.Grow(Values[ValuesCurrent, 0]);
-                otherSnake.getPlayer.AppendPoints(Values[ValuesCurrent, 1]);
-            }
+            return $"{this.GetType()} [{color}]";
         }
     }
 
     class Snake : GameObject
     {
-        Player player;
-        public Player getPlayer => player;
-        Snake NextPart = null;
-        public Snake getNextPart => NextPart;
-        public Snake(int[] setPosition, Player setPlayer, Snake setnextPart) : base(setPosition)
+        public Snake(Player setPlayer) : base()
         {
             player = setPlayer;
-            pen.Color = player.getcolor;
-            SetNextPart(setnextPart);
+            color = player.getColor;
         }
 
-        public void SetNextPart(Snake setnextPart)
+        Player player;
+        public Player getPlayer => player;
+
+        public override string ToString()
         {
-            NextPart = setnextPart;
+            return $"Player ({player.getColor}) snake";
+        }
+    }
+
+    class Consumable : GameObject
+    {
+        public Consumable() : base()
+        {
+            color = Color.Black;
         }
 
-        protected override void CollisionExe(GameObject other)
+        protected int valuePoints = 0;
+        protected int valueGrowth = 0;
+        public int ValuePoints => valuePoints;
+        public int ValueGrowth => valueGrowth;
+
+        public static Consumable GenerateConsumable(Random r)
         {
-            if (other.GetType() != typeof(Consumable))
+            switch (r.Next(2))
             {
+                default:
+                case 0:
+                    return new ConsumableFoodNormal();
+                    break;
 
+                case 1:
+                    return new ConsumableFoodBig();
+                    break;
+
+                case 2:
+                    return new ConsumableFoodSmall();
+                    break;
             }
+        }
+    }
+
+
+    class ConsumableFoodNormal : Consumable
+    {
+        public ConsumableFoodNormal() : base() 
+        { 
+            color = Color.Yellow;
+            valuePoints = 1;
+            valueGrowth = 1;
+        }
+    }
+
+    class ConsumableFoodBig : Consumable
+    {
+        public ConsumableFoodBig() : base() 
+        { 
+            color = Color.SandyBrown;
+            valuePoints = 5;
+            valueGrowth = 2;
+        }
+    }
+
+    class ConsumableFoodSmall : Consumable
+    {
+        public ConsumableFoodSmall() : base() 
+        {
+            color = Color.Blue;
+            valuePoints = 1;
+            valueGrowth = -1;
         }
     }
 }
