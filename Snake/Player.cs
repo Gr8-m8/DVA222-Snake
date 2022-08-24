@@ -69,8 +69,17 @@ namespace Snake
             GameObject other;
             if (moveTile.Occupied(out other))
             {
-                if (other.GetType() == typeof(Snake)) { Snake otherSnake = (Snake)other; otherSnake.getPlayer.AppendPoints(5); this.Die(); return; }
-                if (other.GetType().BaseType == typeof(Consumable)) { Consumable otherConsumable = (Consumable)other; AppendPoints(otherConsumable.ValuePoints); AppendGrowth(otherConsumable.ValueGrowth); game.SpawnConsumable(); }
+                if (other.GetType() == typeof(Snake)) 
+                { Snake otherSnake = (Snake)other; 
+                    otherSnake.getPlayer.AppendPoints(5); this.Die(); return; }
+
+                if (other.GetType().BaseType == typeof(Consumable))
+                {
+                    Consumable otherConsumable = (Consumable)other;
+                    AppendPoints(otherConsumable.ValuePoints); AppendGrowth(otherConsumable.ValueGrowth); game.SpawnConsumable();
+                    if (other.GetType() == typeof(ConsumableWormHole)) { ConsumableWormHole cw = (ConsumableWormHole)other; this.setPosition(cw.Destination); }
+
+                }
             }
 
             snake.Add(new Snake(this, moveTile));

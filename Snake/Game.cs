@@ -39,12 +39,23 @@ namespace Snake
 
             //Utility Keys
             if (e.KeyCode == Keys.Escape) { System.Environment.Exit(0); }
-            if (e.KeyCode == Keys.Enter) { game.StartGame(); }
+            if (e.KeyCode == Keys.Enter) { game.StartNewGame(); }
         }
     }
 
     class Game
     {
+        public void Run()
+        {
+            //Debug.WriteLine("RUN");
+            Grapics.Paint += Draw;
+            timer.Tick += Update;
+            timer.Interval = 240;
+            timer.Start();
+
+            Application.Run(Grapics);
+        }
+
         public Game()
         {
             Grapics = new GameGrapics(this);
@@ -57,7 +68,7 @@ namespace Snake
             Postgame = 1,
         }
         GameState gamestate = GameState.Pregame;
-        public void StartGame()
+        public void StartNewGame()
         {
             if (gamestate == GameState.Ingame) return;
             gamestate = GameState.Ingame;
@@ -88,14 +99,11 @@ namespace Snake
 
             for (int i = 0; i < 2; i++)
             {
-                SpawnConsumable();
+                getBoard.SpawnConsumable(r);
             }
         }
 
-        public void SpawnConsumable()
-        {
-            Consumable.GenerateConsumable(r, getBoard.getRandomEmptyTile(r));
-        }
+        
 
         Random r = new Random();
 
@@ -108,20 +116,6 @@ namespace Snake
         
         Player[] players;
         public Player[] GetPlayers => players;
-
-        
-
-        public void Run()
-        {
-            //Debug.WriteLine("RUN");
-            Grapics.Paint += Draw;
-            timer.Tick += Update;
-            timer.Interval = 240;
-            timer.Start();
-
-            Application.Run(Grapics);
-        }
-
 
         void Update(Object obj, EventArgs args)
         {
@@ -158,6 +152,7 @@ namespace Snake
 
                 case GameState.Ingame:
                     for (int i = 0; i < players.Length; i++) { players[i].Draw(args.Graphics, font, new Vector((int)font.Size + Math.Min(this.Grapics.Width, this.Grapics.Height), (int)((font.Size) / 2 * (i + 1) + (font.Size * i))), i + 1); }
+                    
                     getBoard.Draw(args.Graphics, font, new Vector(0, (int)font.Size * (players.Length + 1)), Math.Min(this.Grapics.Width, this.Grapics.Height));
                     break;
 
@@ -175,8 +170,6 @@ namespace Snake
                         args.Graphics.DrawString($"Player {i+1} score: {players[i].Points}", font, new SolidBrush(players[i].getColor), new PointF(this.Grapics.Width / 3, this.Grapics.Height / 2 + font.Size*i +(font.Size/2)*i));
                     break;
             }
-            
-
         }
     }
 }

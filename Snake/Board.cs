@@ -44,13 +44,18 @@ namespace Snake
             return tiles[position.X, position.Y];
         }
 
+        public void SpawnConsumable(Random r)
+        {
+            Consumable.GenerateConsumable(r, getRandomEmptyTile(r));
+        }
+
         public void Draw(Graphics graphics, Font font, Vector position, float gsize)
         {
             for (int y = 0; y < getSizeX; y++)
             {
                 for (int x = 0; x < getSizeY; x++)
                 {
-                    tiles[x, y].Draw(graphics, font, new Vector(x, y), gsize/Math.Min(getSizeX, getSizeY));
+                    tiles[x, y].Draw(graphics, font, new Vector(x, y), gsize/Math.Min(getSizeX+1, getSizeY+1));
                 }
             }
         }

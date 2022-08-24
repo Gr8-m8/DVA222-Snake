@@ -19,14 +19,9 @@ namespace Snake
         Tile tile = null;
         public void Clear() { tile.Clear(); }
 
-        public void Draw(Graphics graphics, Font font, Vector position, float gsize, int margin)
+        public virtual void Draw(Graphics graphics, Font font, Vector position, float gsize, int margin)
         {
             graphics.FillRectangle(new SolidBrush(color), position.X * gsize +margin, position.Y * gsize +margin, gsize-2*margin, gsize-2*margin);
-        }
-
-        public override string ToString()
-        {
-            return $"{this.GetType()} [{color}]";
         }
     }
 
@@ -40,11 +35,6 @@ namespace Snake
 
         Player player;
         public Player getPlayer => player;
-
-        public override string ToString()
-        {
-            return $"Player ({player.getColor}) snake";
-        }
     }
 
     class Consumable : GameObject
@@ -61,7 +51,7 @@ namespace Snake
 
         public static Consumable GenerateConsumable(Random r, Tile setTile)
         {
-            switch (r.Next(3))
+            switch (r.Next(4))
             {
                 default:
                 case 0:
@@ -74,6 +64,10 @@ namespace Snake
 
                 case 2:
                     return new ConsumableFoodSmall(setTile);
+                    break;
+
+                case 3:
+                    return new ConsumableWormHole(setTile, new Vector(r.Next(17), r.Next(17)));
                     break;
             }
         }
@@ -107,6 +101,27 @@ namespace Snake
             color = Color.Blue;
             valuePoints = 1;
             valueGrowth = -1;
+        }
+    }
+
+    class ConsumableWormHole : Consumable
+    {
+        public ConsumableWormHole(Tile setTile, Vector setDestination) : base(setTile)
+        {
+            color = Color.Violet;
+            valuePoints = 3;
+            valueGrowth = 0;
+
+            destination = setDestination;
+        }
+
+        Vector destination;
+        public Vector Destination => destination;
+
+        public override void Draw(Graphics graphics, Font font, Vector position, float gsize, int margin)
+        {
+            graphics.FillRectangle(new SolidBrush(color), position.X * gsize + margin, position.Y * gsize + margin, gsize - 2 * margin, gsize - 2 * margin);
+            graphics.DrawLine(new Pen(color), position.X * gsize+gsize/2, position.Y * gsize+gsize/2, destination.X * gsize+gsize/2, destination.Y * gsize+gsize/2);
         }
     }
 }
