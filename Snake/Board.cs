@@ -38,7 +38,7 @@ namespace Snake
             Vector position;
             do
             {
-                position = new Vector(r.Next(getSizeX), r.Next(getSizeY));
+                position = new Vector(r.Next(getSizeX-1), r.Next(getSizeY-1));
             } while (tiles[position.X, position.Y].Occupied());
 
             return tiles[position.X, position.Y];

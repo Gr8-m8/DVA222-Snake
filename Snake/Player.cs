@@ -41,19 +41,12 @@ namespace Snake
             dead = setdead;
         }
 
-        public void Award(Consumable food)
-        {
-            AppendPoints(food.ValuePoints);
-            AppendGrowth(food.ValueGrowth);
-
-        }
-
-        void AppendPoints(int addpoints)
+        public void AppendPoints(int addpoints)
         {
             points += addpoints;
         }
 
-        void AppendGrowth(int addgrowth)
+        public void AppendGrowth(int addgrowth)
         {
             growth += addgrowth;
         }
@@ -64,27 +57,25 @@ namespace Snake
             direction = setDirection;
             color = setColor;
 
-            snake.Add(new Snake(this));
+            snake.Add(new Snake(this, game.getBoard.getTile(position)));
             game.getBoard.getTile(position).Occupie(snake.First());
         }
 
         void Move(Board board)
         {
             setPosition(new Vector(position.X + direction.X, position.Y + direction.Y));
-            //Debug.WriteLine($"snake ({color}) p=<{position}>");
             Tile moveTile = board.getTile(position);
             if (moveTile == null) { this.Die(); return; }
             GameObject other;
             if (moveTile.Occupied(out other))
             {
                 Debug.WriteLine($"Snake {color} collision: {other.GetType().BaseType}");
-                if (other.GetType() == typeof(Snake)) { Debug.WriteLine($"Snake {color} isdead"); this.Die(); return; }
-                if (other.GetType().BaseType == typeof(Consumable)) { Debug.WriteLine($"Snake {color} consumed"); Award((Consumable)other); }
+                if (other.GetType() == typeof(Snake)) { Snake otherSnake = (Snake)other; otherSnake.getPlayer.AppendPoints(5); this.Die(); return; }
+                if (other.GetType().BaseType == typeof(Consumable)) { Consumable otherConsumable = (Consumable)other; AppendPoints(otherConsumable.ValuePoints); AppendGrowth(otherConsumable.ValuePoints); game.SpawnConsumable(); }
             }
 
-            snake.Add(new Snake(this));
-            moveTile.Occupie(snake.LastOrDefault());
-            if (growth > 0) growth--; else snake.Remove(snake.FirstOrDefault());
+            snake.Add(new Snake(this, moveTile));
+            if (growth > 0) { growth--; } else { snake.FirstOrDefault().Clear(); snake.Remove(snake.FirstOrDefault()); }
         }
 
         public void Update()

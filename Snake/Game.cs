@@ -61,7 +61,8 @@ namespace Snake
         {
             if (gamestate == GameState.Ingame) return;
             gamestate = GameState.Ingame;
-            board = new Board(new Vector(31, 31));
+            int size = 17;
+            board = new Board(new Vector(size, size));
 
             players = new Player[2];// { new Player(this), new Player(this) };
             for (int si = 0; si < players.Length; si++)
@@ -91,9 +92,9 @@ namespace Snake
             }
         }
 
-        void SpawnConsumable()
+        public void SpawnConsumable()
         {
-            getBoard.getRandomEmptyTile(r).Occupie(Consumable.GenerateConsumable(r));
+            Consumable.GenerateConsumable(r, getBoard.getRandomEmptyTile(r));
         }
 
         Random r = new Random();

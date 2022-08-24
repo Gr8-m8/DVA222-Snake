@@ -8,13 +8,16 @@ namespace Snake
 {
     class GameObject
     {
+        public GameObject(Tile setTile)
+        {
+            tile = setTile;
+            tile.Occupie(this);
+        }
         protected Color color = Color.Black;
         public Color getColor => color;
 
-        public GameObject()
-        {
-
-        }
+        Tile tile = null;
+        public void Clear() { tile.Clear(); }
 
         public void Draw(Graphics graphics, Font font, Vector position, float gsize, int margin)
         {
@@ -29,7 +32,7 @@ namespace Snake
 
     class Snake : GameObject
     {
-        public Snake(Player setPlayer) : base()
+        public Snake(Player setPlayer, Tile setTile) : base(setTile)
         {
             player = setPlayer;
             color = player.getColor;
@@ -46,7 +49,7 @@ namespace Snake
 
     class Consumable : GameObject
     {
-        public Consumable() : base()
+        public Consumable(Tile setTile) : base(setTile)
         {
             color = Color.Black;
         }
@@ -56,21 +59,21 @@ namespace Snake
         public int ValuePoints => valuePoints;
         public int ValueGrowth => valueGrowth;
 
-        public static Consumable GenerateConsumable(Random r)
+        public static Consumable GenerateConsumable(Random r, Tile setTile)
         {
             switch (r.Next(2))
             {
                 default:
                 case 0:
-                    return new ConsumableFoodNormal();
+                    return new ConsumableFoodNormal(setTile);
                     break;
 
                 case 1:
-                    return new ConsumableFoodBig();
+                    return new ConsumableFoodBig(setTile);
                     break;
 
                 case 2:
-                    return new ConsumableFoodSmall();
+                    return new ConsumableFoodSmall(setTile);
                     break;
             }
         }
@@ -79,7 +82,7 @@ namespace Snake
 
     class ConsumableFoodNormal : Consumable
     {
-        public ConsumableFoodNormal() : base() 
+        public ConsumableFoodNormal(Tile setTile) : base(setTile) 
         { 
             color = Color.Yellow;
             valuePoints = 1;
@@ -89,7 +92,7 @@ namespace Snake
 
     class ConsumableFoodBig : Consumable
     {
-        public ConsumableFoodBig() : base() 
+        public ConsumableFoodBig(Tile setTile) : base(setTile)
         { 
             color = Color.SandyBrown;
             valuePoints = 5;
@@ -99,7 +102,7 @@ namespace Snake
 
     class ConsumableFoodSmall : Consumable
     {
-        public ConsumableFoodSmall() : base() 
+        public ConsumableFoodSmall(Tile setTile) : base(setTile)
         {
             color = Color.Blue;
             valuePoints = 1;
