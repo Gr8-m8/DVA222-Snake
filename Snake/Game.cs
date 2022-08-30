@@ -106,6 +106,7 @@ namespace Snake
         
 
         Random r = new Random();
+        public Random R => r;
 
         GameGrapics Grapics;// = new GameGrapics();
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();

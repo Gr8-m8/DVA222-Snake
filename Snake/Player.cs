@@ -76,7 +76,7 @@ namespace Snake
                 if (other.GetType().BaseType == typeof(Consumable))
                 {
                     Consumable otherConsumable = (Consumable)other;
-                    AppendPoints(otherConsumable.ValuePoints); AppendGrowth(otherConsumable.ValueGrowth); game.SpawnConsumable();
+                    AppendPoints(otherConsumable.ValuePoints); AppendGrowth(otherConsumable.ValueGrowth); board.SpawnConsumable(game.R);
                     if (other.GetType() == typeof(ConsumableWormHole)) { ConsumableWormHole cw = (ConsumableWormHole)other; this.setPosition(cw.Destination); }
 
                 }
