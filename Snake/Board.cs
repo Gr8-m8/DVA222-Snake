@@ -49,6 +49,11 @@ namespace Snake
             Consumable.GenerateConsumable(r, getRandomEmptyTile(r));
         }
 
+        public void SpawnConsumableCombo(Random r, ConsumableCombo cc)
+        {
+            Consumable.GenerateConsumable(r, getRandomEmptyTile(r), cc);
+        }
+
         public void Draw(Graphics graphics, Font font, Vector position, float gsize)
         {
             for (int y = 0; y < getSizeX; y++)

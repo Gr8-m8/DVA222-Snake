@@ -49,8 +49,13 @@ namespace Snake
         public int ValuePoints => valuePoints;
         public int ValueGrowth => valueGrowth;
 
-        public static Consumable GenerateConsumable(Random r, Tile setTile)
+        public static Consumable GenerateConsumable(Random r, Tile setTile, ConsumableCombo cc = null)
         {
+            if (cc != null)
+            {
+                return new ConsumableCombo(setTile, cc);
+            }
+
             switch (r.Next(4))
             {
                 default:
@@ -67,7 +72,7 @@ namespace Snake
                     break;
 
                 case 3:
-                    return new ConsumableWormHole(setTile, new Vector(r.Next(17), r.Next(17)));
+                    return new ConsumableCombo(setTile);
                     break;
             }
         }
@@ -104,24 +109,25 @@ namespace Snake
         }
     }
 
-    class ConsumableWormHole : Consumable
+    //Extension
+    class ConsumableCombo : Consumable
     {
-        public ConsumableWormHole(Tile setTile, Vector setDestination) : base(setTile)
+        Player comboPlayer;
+        public ConsumableCombo(Tile setTile, ConsumableCombo cc = null) : base(setTile)
         {
             color = Color.Violet;
-            valuePoints = 3;
-            valueGrowth = 0;
-
-            destination = setDestination;
+            valueGrowth = 1;
+            if (cc == null)
+            {
+                valuePoints = 1;
+            } else
+            {
+                comboPlayer = cc.comboPlayer;
+                valuePoints = cc.valuePoints * 2;
+            }
         }
 
-        Vector destination;
-        public Vector Destination => destination;
-
-        public override void Draw(Graphics graphics, Font font, Vector position, float gsize, int margin)
-        {
-            graphics.FillRectangle(new SolidBrush(color), position.X * gsize + margin, position.Y * gsize + margin, gsize - 2 * margin, gsize - 2 * margin);
-            graphics.DrawLine(new Pen(color), position.X * gsize+gsize/2, position.Y * gsize+gsize/2, destination.X * gsize+gsize/2, destination.Y * gsize+gsize/2);
-        }
+        public void setPlayer(Player p) { comboPlayer = p; }
+        public Player getPlayer => comboPlayer;
     }
 }
