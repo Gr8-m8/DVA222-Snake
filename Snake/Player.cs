@@ -69,16 +69,16 @@ namespace Snake
             GameObject other;
             if (moveTile.Occupied(out other))
             {
-                if (other.GetType() == typeof(Snake)) 
+                if (other.Tags.Contains(Snake.GameObjectTag)) 
                 { Snake otherSnake = (Snake)other; 
                     otherSnake.getPlayer.AppendPoints(5); this.Die(); return; }
 
-                if (other.GetType().BaseType == typeof(Consumable))
+                if (other.Tags.Contains(Consumable.GameObjectTag))
                 {
                     Consumable otherConsumable = (Consumable)other;
                     AppendPoints(otherConsumable.ValuePoints); AppendGrowth(otherConsumable.ValueGrowth);
                     
-                    if (other.GetType() == typeof(ConsumableCombo)) 
+                    if (other.Tags.Contains(ConsumableCombo.GameObjectTag)) 
                     { 
                         ConsumableCombo cc = (ConsumableCombo)other;
                         if (cc.getPlayer == null)

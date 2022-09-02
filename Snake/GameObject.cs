@@ -8,8 +8,15 @@ namespace Snake
 {
     class GameObject
     {
+        public static string GameObjectTag = "GameObject";
+
+        protected List<string> tags;
+        public List<string> Tags => tags;
+        
         public GameObject(Tile setTile)
         {
+            tags = new List<string>();
+            tags.Add(GameObject.GameObjectTag);
             tile = setTile;
             tile.Occupie(this);
         }
@@ -27,8 +34,10 @@ namespace Snake
 
     class Snake : GameObject
     {
+        public static string GameObjectTag = "Snake";
         public Snake(Player setPlayer, Tile setTile) : base(setTile)
         {
+            tags.Add(Snake.GameObjectTag);
             player = setPlayer;
             color = player.getColor;
         }
@@ -39,8 +48,11 @@ namespace Snake
 
     class Consumable : GameObject
     {
+        public static string GameObjectTag = "Consumable";
+
         public Consumable(Tile setTile) : base(setTile)
         {
+            tags.Add(Consumable.GameObjectTag);
             color = Color.Black;
         }
 
@@ -81,8 +93,10 @@ namespace Snake
 
     class ConsumableFoodNormal : Consumable
     {
+        public static string GameObjectTag = "FoodNormal";
         public ConsumableFoodNormal(Tile setTile) : base(setTile) 
-        { 
+        {
+            tags.Add(ConsumableFoodNormal.GameObjectTag);
             color = Color.Yellow;
             valuePoints = 1;
             valueGrowth = 1;
@@ -91,8 +105,10 @@ namespace Snake
 
     class ConsumableFoodBig : Consumable
     {
+        public static string GameObjectTag = "FoodBig";
         public ConsumableFoodBig(Tile setTile) : base(setTile)
-        { 
+        {
+            tags.Add(ConsumableFoodBig.GameObjectTag);
             color = Color.SandyBrown;
             valuePoints = 5;
             valueGrowth = 2;
@@ -101,8 +117,10 @@ namespace Snake
 
     class ConsumableFoodSmall : Consumable
     {
+        public static string GameObjectTag = "FoodSmall";
         public ConsumableFoodSmall(Tile setTile) : base(setTile)
         {
+            tags.Add(ConsumableFoodSmall.GameObjectTag);
             color = Color.Blue;
             valuePoints = 1;
             valueGrowth = -1;
@@ -112,9 +130,11 @@ namespace Snake
     //Extension
     class ConsumableCombo : Consumable
     {
+        public static string GameObjectTag = "ConsumableCombo";
         Player comboPlayer;
         public ConsumableCombo(Tile setTile, ConsumableCombo cc = null) : base(setTile)
         {
+            tags.Add(ConsumableCombo.GameObjectTag);
             color = Color.Violet;
             valueGrowth = 1;
             if (cc == null)
